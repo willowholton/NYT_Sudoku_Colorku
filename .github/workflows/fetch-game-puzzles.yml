@@ -28,10 +28,11 @@ jobs:
       - name: Run Python script
         run: python3 fetchpuzzles.py
 
-      - name: Commit puzzle file
+      - name: Commit puzzle file and images
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Colorku/src/data
+          git add Puzzles/
           git diff --cached --quiet || git commit -m "Added puzzles for $(date +'%Y-%m-%d')"
           git push
