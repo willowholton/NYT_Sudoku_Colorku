@@ -37,7 +37,7 @@ export function Palette({ onSelectColor }: PaletteProps) {
     )
 }
 
-export function Cell({ value, isGiven, isSelected, isNeighbor, isMatch, onClick} : CellProps) {
+export function Cell({ value, isGiven: _isGiven, isSelected, isNeighbor, isMatch, onClick} : CellProps) {
     return (
         <div className={`cell ${isSelected ? 'selected' : ''} ${isNeighbor ? 'neighbor' : ''} ${isMatch ? 'match' : ''}`} onClick={onClick}>
         {value !== 0 && (
@@ -45,7 +45,6 @@ export function Cell({ value, isGiven, isSelected, isNeighbor, isMatch, onClick}
         </div> 
     )
 }
-
 
 
 export function Board({ puzzle, date, difficulty, onBack }: { puzzle : Puzzle; date: string, difficulty: Difficulty, onBack: () => void }) {
