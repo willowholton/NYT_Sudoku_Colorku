@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Puzzle } from './types'
+import type { Puzzle, Difficulty } from './types'
 import { COLORS } from './colors'
 
 interface CellProps {
@@ -37,7 +37,7 @@ export function Palette({ onSelectColor }: PaletteProps) {
     )
 }
 
-export function Cell({ value, isSelected, isNeighbor, isMatch, onClick} : CellProps) {
+export function Cell({ value, isGiven, isSelected, isNeighbor, isMatch, onClick} : CellProps) {
     return (
         <div className={`cell ${isSelected ? 'selected' : ''} ${isNeighbor ? 'neighbor' : ''} ${isMatch ? 'match' : ''}`} onClick={onClick}>
         {value !== 0 && (
@@ -48,9 +48,9 @@ export function Cell({ value, isSelected, isNeighbor, isMatch, onClick} : CellPr
 
 
 
-export function Board({ puzzle, date, onBack }: { puzzle : Puzzle; date: string, onBack: () => void }) {
+export function Board({ puzzle, date, difficulty, onBack }: { puzzle : Puzzle; date: string, difficulty: Difficulty, onBack: () => void }) {
     const [board, setBoard] = useState<number[][]>(() => {
-        const saved = localStorage.getItem('colorku-progress')
+        const saved = localStorage.getItem(`colorku-progress-${difficulty}`)
         if (saved === null) return puzzle.given
 
         const parsed = JSON.parse(saved)
@@ -72,13 +72,20 @@ export function Board({ puzzle, date, onBack }: { puzzle : Puzzle; date: string,
             })
         })
         setBoard(newBoard)
-        localStorage.setItem('colorku-progress', JSON.stringify({ date: date, board: newBoard }))
+        localStorage.setItem(`colorku-progress-${difficulty}`, JSON.stringify({ date: date, board: newBoard }))
+    }
+
+    function clearAll() {
+        setBoard(puzzle.given)
+        localStorage.setItem(`colorku-progress-${difficulty}`, JSON.stringify({ date: date, board: puzzle.given }))
     }
 
     return (
-        <div className='Page'>
-            <button className="back-button" onClick={onBack}>Back</button>
-    
+        <div className='page'>
+            <div className='header-buttons'>
+                <button className='back-button' onClick={onBack}>Back</button>
+                <button className='reset-button' onClick={clearAll}>Reset</button>
+            </div>
             <div className='game' >
                 <div className='board'>
                     {board.map((row, rowIdx) =>  (
