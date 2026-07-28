@@ -78,6 +78,10 @@
   background-color: #cdcdcd;
 }
 
+.conflict {
+  box-shadow: 0 0 0 4px #ff0a0a;
+}
+
 .board {
   position: relative;
   border: 3px solid #373737;

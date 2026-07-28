@@ -8,6 +8,7 @@ interface CellProps {
     isSelected: boolean;
     isNeighbor: boolean;
     isMatch: boolean;
+    isConflict: boolean;
     onClick: () => void;
 }
 
@@ -37,11 +38,15 @@ export function Palette({ onSelectColor }: PaletteProps) {
     )
 }
 
-export function Cell({ value, isGiven: _isGiven, isSelected, isNeighbor, isMatch, onClick} : CellProps) {
+export function Cell({ value, isGiven: _isGiven, isSelected, isNeighbor, isMatch, isConflict, onClick} : CellProps) {
     return (
         <div className={`cell ${isSelected ? 'selected' : ''} ${isNeighbor ? 'neighbor' : ''} ${isMatch ? 'match' : ''}`} onClick={onClick}>
         {value !== 0 && (
-        <div className='swatch' style={{ backgroundColor: COLORS[value] }}/> )}
+        <div 
+            className={`swatch ${isConflict ? 'conflict' : ''}`}
+            style={{ backgroundColor: COLORS[value] }}
+            /> 
+        )}
         </div> 
     )
 }
@@ -79,6 +84,31 @@ export function Board({ puzzle, date, difficulty, onBack }: { puzzle : Puzzle; d
         localStorage.setItem(`colorku-progress-${difficulty}`, JSON.stringify({ date: date, board: puzzle.given }))
     }
 
+    function hasConflict(row: number, col: number): boolean {
+        const value = board[row][col]
+        if (value === 0) return false
+
+        // Find row and col conflicts:
+        const rConflict = board[row].some((currValue, colIdx) => (colIdx !== col) && (currValue === value))
+        const cConflict = board.some((currRow, rowIdx) => (rowIdx !== row) && (currRow[col] === value))
+
+        let bConflict = false
+
+        // Get start indices of the block
+        const rowStart = Math.floor(row / 3) * 3
+        const colStart = Math.floor(col / 3) * 3
+
+        // Loop over block and check for conflicts:
+        for (let r = rowStart; r < (rowStart + 3); r++) {
+            for (let c = colStart; c < (colStart + 3); c++){
+                if ((r === row) && (c === col)) continue
+                if (board[r][c] === value) bConflict = true
+            }
+        }
+
+        return (rConflict || cConflict || bConflict)
+    }
+
     return (
         <div className='page'>
             <div className='header-buttons'>
@@ -105,6 +135,7 @@ export function Board({ puzzle, date, difficulty, onBack }: { puzzle : Puzzle; d
                                     isMatch={
                                         (selected !== null) && (value !== 0) && (board[selected.row][selected.col] ===  value)
                                     }
+                                    isConflict={hasConflict(rowIdx, colIdx)}
                                     onClick={() => {setSelected({ row: rowIdx, col: colIdx })}
                                     }
                                 />
